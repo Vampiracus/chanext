@@ -1,0 +1,12 @@
+.primitive-paper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 95vh;
+}
+
+.primitive-paper__content {
+    padding: 16px;
+    background-color: #555;
+    border-radius: 16px;
+}
