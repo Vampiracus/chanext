@@ -1,15 +1,14 @@
 import { AbstractGameObject, TGameObjectOptions } from './AbstractGameObject'
 import {
-  BEGIN_COORD_X,
-  BEGIN_COORD_Y,
   CHECKER_SHADOW_COLOR,
-  CHESSBOARD_HEIGHT,
-  CHESSBOARD_WIDTH,
   DARK_CHECKER_COLOR,
   FRICTION_COEFFICIENT,
-  MAXSPEED,
-  MAXSPEED_DISTANCE,
-  RADIUS_CHECKER,
+  getAreaWidth,
+  getCanvasWidth,
+  getCheckerRadius,
+  getMaxSpeed,
+  getMaxSpeedDist,
+  getStartCoord,
 } from './const'
 
 /**
@@ -75,9 +74,9 @@ export class Checker extends AbstractGameObject {
   protected draw(): void {
     this.ctx.shadowColor = CHECKER_SHADOW_COLOR
     if (this._active) {
-      this.ctx.lineWidth = 5
+      this.ctx.lineWidth = 5 * getCanvasWidth() / 800
       this.ctx.beginPath()
-      this.ctx.arc(this.x, this.y, MAXSPEED_DISTANCE, 0, Math.PI * 2)
+      this.ctx.arc(this.x, this.y, getMaxSpeedDist(), 0, Math.PI * 2)
       this.ctx.stroke()
       this.ctx.lineWidth = 1
       this.ctx.shadowBlur = 8
@@ -117,18 +116,18 @@ export class Checker extends AbstractGameObject {
     const len = vlength(this.vx, this.vy)
 
     const distToThrowPoint = Math.min(
-      MAXSPEED_DISTANCE,
+      getMaxSpeedDist(),
       dist(this.x, this.y, x, y)
     )
 
     this.vx =
-      ((this.vx / len) * MAXSPEED * distToThrowPoint) / MAXSPEED_DISTANCE
+      ((this.vx / len) * getMaxSpeed() * distToThrowPoint) / getMaxSpeedDist()
     this.vy =
-      ((this.vy / len) * MAXSPEED * distToThrowPoint) / MAXSPEED_DISTANCE
+      ((this.vy / len) * getMaxSpeed() * distToThrowPoint) / getMaxSpeedDist()
   }
 
   public isCollision(other: Checker) {
-    if (dist(this.x, this.y, other.x, other.y) < 2 * RADIUS_CHECKER) {
+    if (dist(this.x, this.y, other.x, other.y) < 2 * getCheckerRadius()) {
       return true
     }
     return false
@@ -166,18 +165,18 @@ export class Checker extends AbstractGameObject {
   public isOutOfBoundaries() {
     // Центр пешки вне доски
     return (
-      this.x < BEGIN_COORD_X ||
-      this.x > BEGIN_COORD_X + CHESSBOARD_WIDTH ||
-      this.y < BEGIN_COORD_Y ||
-      this.y > BEGIN_COORD_Y + CHESSBOARD_HEIGHT
+      this.x < getStartCoord() ||
+      this.x > getStartCoord() + getAreaWidth() ||
+      this.y < getStartCoord() ||
+      this.y > getStartCoord() + getAreaWidth()
     )
 
     /* 
     // Пешка коснулась края доски
     return (this.x - RADIUS_CHECKER < BEGIN_COORD_X 
-         || this.x + RADIUS_CHECKER > BEGIN_COORD_X + CHESSBOARD_WIDTH
+         || this.x + RADIUS_CHECKER > BEGIN_COORD_X + getAreaWidth()
          || this.y - RADIUS_CHECKER < BEGIN_COORD_Y
-         || this.y + RADIUS_CHECKER > BEGIN_COORD_Y + CHESSBOARD_HEIGHT)
+         || this.y + RADIUS_CHECKER > BEGIN_COORD_Y + getAreaWidth())
     */
   }
 }

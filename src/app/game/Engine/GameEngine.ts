@@ -2,11 +2,9 @@ import { Checkers, ChessBoard } from '../Engine'
 import { AbstractGameObject } from './AbstractGameObject'
 import {
   BG_COLOR,
-  BEGIN_COORD_X,
-  BEGIN_COORD_Y,
-  CHESSBOARD_WIDTH,
-  CHESSBOARD_HEIGHT,
   GameState,
+  getCanvasWidth,
+  getStartCoord,
 } from './const'
 
 export type TGameEngineOptions = {
@@ -20,10 +18,6 @@ export type TGameEngineOptions = {
 const noop = () => {}
 
 export class GameEngine {
-  static gameAreaWidth = 800
-
-  static gameAreaHeight = 800
-
   private _ctx: CanvasRenderingContext2D
 
   private _ref: HTMLCanvasElement
@@ -54,8 +48,8 @@ export class GameEngine {
     this._ctx = ctx
     this._ref = ref
 
-    ctx.canvas.width = GameEngine.gameAreaWidth
-    ctx.canvas.height = GameEngine.gameAreaHeight
+    ctx.canvas.width = getCanvasWidth()
+    ctx.canvas.height = getCanvasWidth()
 
     this._onScoreUpdate = onScoreUpdate ?? noop
     this._onGameOver = onGameOver ?? noop
@@ -141,13 +135,13 @@ export class GameEngine {
       new ChessBoard({
         ctx: this._ctx,
         debug: false,
-        x: BEGIN_COORD_X,
-        y: BEGIN_COORD_Y,
+        x: getStartCoord(),
+        y: getStartCoord(),
         // Чтобы не падал TS
         vx: 0,
         vy: 0,
-        width: CHESSBOARD_WIDTH,
-        height: CHESSBOARD_HEIGHT,
+        width: getCanvasWidth(),
+        height: getCanvasWidth(),
       })
     )
     this._bgObjects.push(
@@ -228,8 +222,8 @@ export class GameEngine {
     this._ctx.fillRect(
       0,
       0,
-      GameEngine.gameAreaWidth,
-      GameEngine.gameAreaHeight
+      getCanvasWidth(),
+      getCanvasWidth()
     )
   }
 }

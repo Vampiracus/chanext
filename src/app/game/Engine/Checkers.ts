@@ -4,13 +4,12 @@ import {
   TGameObjectOptions,
 } from './AbstractGameObject'
 import {
-  BEGIN_COORD_X,
-  BEGIN_COORD_Y,
-  CHESSBOARD_WIDTH,
   DARK_CHECKER_COLOR,
   GameState,
   LIGHT_CHECKER_COLOR,
-  RADIUS_CHECKER,
+  getAreaWidth,
+  getCheckerRadius,
+  getStartCoord,
 } from './const'
 import { Checker } from './Checker'
 
@@ -62,19 +61,19 @@ export class Checkers extends AbstractGameObject {
    * Создает все пешки
    */
   private _createAndDrawAllCheckers() {
-    const step = CHESSBOARD_WIDTH / 8
+    const step = getAreaWidth() / 8
     this._createAndDrawColoredCheckers(
       this.ctx,
-      BEGIN_COORD_X,
-      BEGIN_COORD_Y,
+      getStartCoord(),
+      getStartCoord(),
       step,
       DARK_CHECKER_COLOR,
       false
     )
     this._createAndDrawColoredCheckers(
       this.ctx,
-      BEGIN_COORD_X,
-      BEGIN_COORD_Y + step * 7,
+      getStartCoord(),
+      getStartCoord() + step * 7,
       step,
       LIGHT_CHECKER_COLOR,
       true
@@ -99,7 +98,7 @@ export class Checkers extends AbstractGameObject {
         y: y + step / 2,
         vx: 0,
         vy: 0,
-        radius: RADIUS_CHECKER,
+        radius: getCheckerRadius(),
         color: color,
         width: 0,
         height: 0,
@@ -130,8 +129,9 @@ export class Checkers extends AbstractGameObject {
     const state = this.getGameState()
     if (state !== GameState.playerTurn && state !== GameState.enemyTurn) return
 
-    const x = e.clientX - this.x
-    const y = e.clientY - this.y
+    const x = e.offsetX
+    const y = e.offsetY
+
     this.selectedChecker?.makeInactive()
 
     const newChecker = this._findCheckerByCords(x, y)
@@ -224,6 +224,7 @@ export class Checkers extends AbstractGameObject {
     }
   }
 
+  // On delete of Checkers element
   public override delete() {
     window.removeEventListener(
       'scroll',
@@ -236,7 +237,7 @@ export class Checkers extends AbstractGameObject {
   }
 
   protected draw(): void {
-    this.ctx.strokeText(this.getGameState().toString(), 0, 50)
+    // this.ctx.strokeText(this.getGameState().toString(), 0, 50) // for debugging
   }
 
   public garbageCollector() {

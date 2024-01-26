@@ -60,8 +60,8 @@ const Game = () => {
             new Notification('Игра окончена!')
           }
         },
-      })
-      ;(engineRef.current as null | GameEngine) = gameEngine
+      });
+      (engineRef.current as null | GameEngine) = gameEngine
       gameEngine.init()
       gameStart()
     }

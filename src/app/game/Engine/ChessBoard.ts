@@ -4,7 +4,7 @@ import {
   TGameObjectOptions,
 } from './AbstractGameObject'
 
-import { DARK_CELL_COLOR, LIGHT_CELL_COLOR, CHESSBOARD_WIDTH } from './const'
+import { DARK_CELL_COLOR, LIGHT_CELL_COLOR, getAreaWidth, getCanvasWidth } from './const'
 
 type TPlayerOptions = TGameObjectOptions
 
@@ -13,7 +13,9 @@ export class ChessBoard extends AbstractGameObject {
 
   private symbolsArr = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
-  private delta = CHESSBOARD_WIDTH / 8
+  get delta() {
+    return getAreaWidth() / 8
+  }
 
   constructor(options: TPlayerOptions) {
     super(options)
@@ -42,12 +44,14 @@ export class ChessBoard extends AbstractGameObject {
     }
 
     this.symbolsArr.forEach((item, index) => {
-      this.ctx.font = '24px serif'
-      this.ctx.fillText(item, this.x + this.delta * index + 30, this.y - 20)
+      const w = getCanvasWidth()
+      const fontSz = Math.round(24 * w / 800), offX = 35 * w / 800, offY = 32 * w / 800
+      this.ctx.font = `${fontSz}px serif`
+      this.ctx.fillText(item, this.x + this.delta * index + offX, this.y - offY)
       this.ctx.fillText(
         String(8 - index),
-        this.x - 40,
-        this.y + this.delta * index + 45
+        this.x - offX,
+        this.y + this.delta * index + offY
       )
     })
   }
