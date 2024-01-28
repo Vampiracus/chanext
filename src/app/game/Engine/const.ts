@@ -19,7 +19,7 @@ export enum GameState {
 export const FRICTION_COEFFICIENT = 1.4
 
 export function getCanvasWidth() {
-  return Math.max(Math.min(window.screen.width * 0.9, window.screen.height * 0.7), 270)
+  return Math.max(Math.min(window.screen.width * 0.9, (window.screen.height - 100) * 0.75), 270)
 }
 
 export function getAreaWidth() {

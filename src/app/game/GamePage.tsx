@@ -47,6 +47,7 @@ const Game = () => {
     }
     if (!engineRef.current) {
       const gameEngine = new GameEngine({
+        playedWithBot: true,
         ctx,
         ref: canvasNode,
         onScoreUpdate: newScore => (score.current = newScore),

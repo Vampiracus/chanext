@@ -10,9 +10,9 @@ import {
 export type TGameEngineOptions = {
   ctx: CanvasRenderingContext2D
   ref: HTMLCanvasElement
-  debug?: boolean
   onScoreUpdate?: (newScore: number) => void
   onGameOver?: (score: number) => void
+  playedWithBot?: true
 }
 
 const noop = () => {}
@@ -38,15 +38,18 @@ export class GameEngine {
 
   private _objectsClass: typeof AbstractGameObject[] = []
 
+  private _withBot: boolean
+
   constructor({
     ctx,
     ref,
-    debug,
     onScoreUpdate,
     onGameOver,
+    playedWithBot,
   }: TGameEngineOptions) {
     this._ctx = ctx
     this._ref = ref
+    this._withBot = !!playedWithBot
 
     ctx.canvas.width = getCanvasWidth()
     ctx.canvas.height = getCanvasWidth()
@@ -161,6 +164,7 @@ export class GameEngine {
         setGameState: (state: GameState) => {
           this._gameState = state
         },
+        withBot: this._withBot
       })
     )
 
