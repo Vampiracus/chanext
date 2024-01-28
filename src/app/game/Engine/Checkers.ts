@@ -16,6 +16,7 @@ import { Checker } from './Checker'
 type TPlayerOptions = TGameObjectOptions & {
   getGameState: () => GameState
   setGameState: (state: GameState) => void
+  withBot: boolean
 }
 
 // В Checkers.x, Checkers.y хранится положение канвы
@@ -31,6 +32,8 @@ export class Checkers extends AbstractGameObject {
 
   private selectedChecker: Checker | null = null
 
+  private withBot: boolean
+
   private _userScrollAndResizeHandler_withContext: (e: Event) => void
 
   constructor(options: TPlayerOptions) {
@@ -38,7 +41,8 @@ export class Checkers extends AbstractGameObject {
     this.getGameState = options.getGameState
     this.setGameState = options.setGameState
     this._userScrollAndResizeHandler_withContext =
-      this._userScrollAndResizeHandler.bind(this)
+    this._userScrollAndResizeHandler.bind(this)
+    this.withBot = options.withBot
   }
 
   public async init() {
@@ -111,8 +115,10 @@ export class Checkers extends AbstractGameObject {
 
   private _userRightClickHandler(e: MouseEvent): void {
     e.preventDefault()
-    this.selectedChecker?.makeInactive()
-    this.selectedChecker = null
+    if (!(this.withBot && this.getGameState() === GameState.enemyTurn)) {
+      this.selectedChecker?.makeInactive()
+      this.selectedChecker = null
+    }
   }
 
   private _userScrollAndResizeHandler(): void {
@@ -128,6 +134,7 @@ export class Checkers extends AbstractGameObject {
   private _userClickHandler(e: MouseEvent): void {
     const state = this.getGameState()
     if (state !== GameState.playerTurn && state !== GameState.enemyTurn) return
+    if (this.withBot && state === GameState.enemyTurn) return
 
     const x = e.offsetX
     const y = e.offsetY
@@ -180,6 +187,7 @@ export class Checkers extends AbstractGameObject {
       if (this._areCheckersStill()) {
         if (this.getGameState() === GameState.playerTurnAnimation) {
           this.setGameState(GameState.enemyTurn)
+          this.withBot && this._botTakeTurn();
         } else if (this.getGameState() === GameState.enemyTurnAnimation) {
           this.setGameState(GameState.playerTurn)
         }
@@ -262,5 +270,64 @@ export class Checkers extends AbstractGameObject {
       (8 - this.checkersEnemy.length) * 100 -
       (8 - this.checkersPlayer.length) * 50
     )
+  }
+
+  private _botTakeTurn() {
+    /**
+     * Выбирает одну шашку бота и две шашки игрока, так что расстояние между шашкой бота и
+     * первой из шашек игрока минимально. Вторая шашка игрока — второй минимум по растоянию
+     */
+    const botPickCheckers: () => [Checker, Checker, Checker] = () => {
+      let bots = this.checkersEnemy[0], players1 = this.checkersPlayer[0], 
+          players2 = this.checkersPlayer[0], d = bots.distTo(players1)
+      for(let i = 0; i < this.checkersEnemy.length; i++) {
+        for(let j = 0; j < this.checkersPlayer.length; j++) {
+          const c1 = this.checkersEnemy[i], c2 = this.checkersPlayer[j]
+          const d1 = c1.distTo(c2)
+          if (d1 < d) {
+            d = d1
+            players2 = players1
+            players1 = c2
+            bots = c1
+          }
+        }
+      }
+      return [bots, players1, players2]
+    }
+
+    const [ bots, players1, players2 ] = botPickCheckers()
+
+    let players = players1
+    if (Math.random() > 0.65) {
+      players = players2
+    }
+    
+    this.selectedChecker = bots
+    bots.makeActive()
+
+    const botThrow = () => {
+      // Угол разброса
+      const phi = Math.PI / 12 // 15deg
+      const deviation = Math.random() * phi
+      const alpha = phi / 2 - deviation
+      // Нужно повернуть вектор от bots до players на alpha
+      const [ vectX, vectY ] = bots.vectorTo(players)
+      let newX = vectX * Math.cos(alpha) - vectY * Math.sin(alpha)
+      let newY = vectX * Math.sin(alpha) + vectY * Math.cos(alpha)
+      // Силу броска сделать побольше
+      newX *= 1000
+      newY *= 1000
+
+      const x = bots.getX() + newX, y = bots.getY() + newY
+
+      bots.throw(x, y)
+      
+      this.selectedChecker!.makeInactive()
+      this.selectedChecker = null
+      this.setGameState(GameState.enemyTurnAnimation)
+    }
+
+    // Задержка, чтобы игрок понял, какую шашку кидает бот
+    setTimeout(botThrow, 700)
   }
 }

@@ -179,4 +179,21 @@ export class Checker extends AbstractGameObject {
          || this.y + RADIUS_CHECKER > BEGIN_COORD_Y + getAreaWidth())
     */
   }
+
+  public distTo(c: Checker) {
+    return dist(this.x, this.y, c.x, c.y)
+  }
+
+  public vectorTo(c: Checker) {
+    return [c.x - this.x, c.y - this.y]
+  }
+
+  public getX() {
+    return this.x
+  }
+
+  public getY() {
+    return this.y
+  }
+
 }

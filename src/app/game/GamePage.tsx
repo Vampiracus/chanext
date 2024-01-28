@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { GameEngine } from './Engine'
 import styles from './GamePage.module.css'
-import { redirect } from 'next/navigation'
+import { redirect, useSearchParams } from 'next/navigation'
 import Loader from './loading'
 
 const enum Status {
@@ -16,6 +16,7 @@ const Game = () => {
   const [gameStatus, setGameStatus] = useState(Status.start)
   const score = useRef(0)
   const [isLoading, setIsLoading] = useState(true)
+  const bot = useSearchParams().get('bot')
   
   const stopLoading = () => {
     setIsLoading(false)
@@ -47,6 +48,7 @@ const Game = () => {
     }
     if (!engineRef.current) {
       const gameEngine = new GameEngine({
+        playedWithBot: (bot === '1'),
         ctx,
         ref: canvasNode,
         onScoreUpdate: newScore => (score.current = newScore),
@@ -74,7 +76,7 @@ const Game = () => {
   if (gameStatus == Status.gameOver) return (
     redirect('/')
   )
-  
+
   return (
     <>
       <div className={className(styles.game_score, styles['score-text'])}>
