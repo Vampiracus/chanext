@@ -12,7 +12,7 @@ export type TGameEngineOptions = {
   ref: HTMLCanvasElement
   onScoreUpdate?: (newScore: number) => void
   onGameOver?: (score: number) => void
-  playedWithBot?: true
+  playedWithBot?: boolean
 }
 
 const noop = () => {}

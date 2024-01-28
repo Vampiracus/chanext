@@ -8,6 +8,7 @@ export default function Home() {
       </h1>
       <br/>
       <a href='/game'> Играть! </a>
+      <a href='/game?bot=1'> Играть с ботом! </a>
     </main>
   );
 }
